@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 600px;
+            margin: 2px auto;
+            color: black;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        .content {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 0;
+            background-color: #007BFF;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Selamat Datang!</h1>
+        </div>
+        <div class="content">
+            <p>Halo <%= username %>,</p>
+            <p>Terimakasih telah mendaftar di layanan kami. Berikut adalah informasi akun Anda:</p>
+            <ul>
+                <li><strong>Nama: </strong>
+                    <%= fullname %>
+                </li>
+                <li><strong>Email: </strong>
+                    <%= email %>
+                </li>
+                <li><strong>Tanggal Pendaftaran: </strong>
+                    <%= createdAt %>
+                </li>
+            </ul>
+            <p>Untuk memulai menggunakan layanan kami, silakan klik link berikut:</p>
+            <a href="<%= activationLink %>" class="button">Aktifkan Akun</a>
+            <p>Jika Anda memiliki pertanyaan lebih lanjut, silakan hubungi tim kami.</p>
+            <p>Salam hangat, Acara </p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 ACARA Inc. Semua hak dilindungi.</p>
+        </div>
+    </div>
+</body>
+
+</html>
