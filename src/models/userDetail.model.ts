@@ -41,7 +41,7 @@ export interface UserDetail extends Omit<TypeUserDetail, "userId"> {
 
 const UserDetailSchema = new mongoose.Schema<UserDetail>(
   {
-    userId: { type: Schema.Types.ObjectId, ref: USER_MODEL_NAME, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: USER_MODEL_NAME, required: true, unique: true },
     weight: { type: Schema.Types.Number, required: true },
     height: { type: Schema.Types.Number, required: true },
     goal: { type: Schema.Types.String, enum: [GOALS.LOSE, GOALS.MAINTAIN, GOALS.GAIN], required: true },
