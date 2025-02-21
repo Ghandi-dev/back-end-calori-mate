@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import UserModel, { userDTO, userLoginDTO, userUpdatePasswordDTO } from "../models/User.model";
+import UserModel, { userDTO, userLoginDTO, userUpdatePasswordDTO } from "../models/user.model";
 import { encrypt } from "../utils/encryption";
 import { generateToken } from "../utils/jwt";
 import { IReqUser } from "../utils/interface";
