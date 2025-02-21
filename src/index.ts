@@ -12,7 +12,7 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-app.use("/api", router);
+app.use("/", router);
 
 app.get("/", (req, res) => {
   res.status(200).json({
