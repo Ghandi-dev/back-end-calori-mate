@@ -4,12 +4,9 @@ import { sendMail, renderMailHtml } from "../utils/mail/mail";
 import { CLIENT_HOST, EMAIL_SMTP_USER } from "../utils/env";
 import { ROLES } from "../utils/constant";
 import * as yup from "yup";
+import { GENDERS } from "../utils/enum";
 
 export const USER_MODEL_NAME = "User";
-export enum GENDERS {
-  MALE = "male",
-  FEMALE = "female",
-}
 
 const validatePassword = yup
   .string()
@@ -73,10 +70,10 @@ const UserSchema = new Schema<User>(
     fullname: { type: Schema.Types.String, required: true },
     username: { type: Schema.Types.String, required: true, unique: true },
     email: { type: Schema.Types.String, required: true, unique: true },
-    password: { type: Schema.Types.String, required: true },
-    role: { type: Schema.Types.String, enum: [ROLES.ADMIN, ROLES.MEMBER], default: ROLES.MEMBER, required: true },
     gender: { type: Schema.Types.String, enum: [GENDERS.MALE, GENDERS.FEMALE], required: true },
     birthDate: { type: Schema.Types.Date, required: true },
+    password: { type: Schema.Types.String, required: true },
+    role: { type: Schema.Types.String, enum: [ROLES.ADMIN, ROLES.MEMBER], default: ROLES.MEMBER, required: true },
     profilePicture: { type: Schema.Types.String, default: "user.jpg" },
     isActive: { type: Schema.Types.Boolean, default: false },
     activationCode: { type: Schema.Types.String },

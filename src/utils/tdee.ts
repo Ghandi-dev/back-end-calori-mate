@@ -1,4 +1,4 @@
-import { ACTIVITY_LEVELS } from "../models/userDetail.model";
+import { ACTIVITY_LEVELS } from "./enum";
 
 export const tdeeCalculate = (bmr: number, activity: string) => {
   if (activity === ACTIVITY_LEVELS.SEDENTARY) {

@@ -3,9 +3,8 @@ import authController from "../controllers/auth.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 import aclMiddleware from "../middlewares/acl.middleware";
 import { ROLES } from "../utils/constant";
-import mediaMiddleware from "../middlewares/media.middleware";
-import userDetailController from "../controllers/userDetail.controller";
-// import mediaController from "../controllers/media.controller";
+// import mediaMiddleware from "../middlewares/media.middleware";
+import dailyLogController from "../controllers/dailyLog.controller";
 
 const router = express.Router();
 // Auth
@@ -16,13 +15,16 @@ router.post("/auth/activation", authController.activation);
 router.put("/auth/update-profile", [authMiddleware, aclMiddleware([ROLES.MEMBER])], authController.updateProfile);
 router.put("/auth/update-password", [authMiddleware, aclMiddleware([ROLES.MEMBER])], authController.updatePassword);
 
-// User Detail
-router.post("/user-detail", [authMiddleware, aclMiddleware([ROLES.MEMBER])], userDetailController.create);
-router.get("/user-detail/me", [authMiddleware, aclMiddleware([ROLES.MEMBER])], userDetailController.me);
-router.get("/user-detail/:id", [authMiddleware, aclMiddleware([ROLES.ADMIN])], userDetailController.findOne);
-router.get("/user-detail", [authMiddleware, aclMiddleware([ROLES.ADMIN])], userDetailController.findAll);
-router.put("/user-detail", [authMiddleware, aclMiddleware([ROLES.MEMBER])], userDetailController.update);
-router.delete("/user-detail/:id", [authMiddleware, aclMiddleware([ROLES.ADMIN])], userDetailController.delete);
+// Daily Log
+router.post("/daily-log", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.create);
+router.get("/daily-log", [authMiddleware, aclMiddleware([ROLES.ADMIN])], dailyLogController.findAll);
+router.get("/daily-log/:id", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.findOne);
+router.get("/daily-log-member", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.findAllByMember);
+router.get("/daily-log-report", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.getReport);
+router.put("/daily-log/:id", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.update);
+router.delete("/daily-log/:id", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.delete);
+router.delete("/daily-log/:id/food/:foodId", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.deleteFoodById);
+router.delete("/daily-log/:id/activity/:activityId", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.deleteActivityById);
 
 // Media
 // router.post("/media/upload-single", [authMiddleware, aclMiddleware([ROLES.ADMIN, ROLES.MEMBER]), mediaMiddleware.single("file")], mediaController.single);

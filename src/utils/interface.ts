@@ -14,4 +14,15 @@ export interface IPaginationQuery {
   page: number;
   limit: number;
   search?: string;
+  date?: Date;
+}
+
+export interface IHealthReport {
+  bmr: number;
+  tdee: number;
+  totalCaloriesIn: number;
+  totalCaloriesOut: number;
+  weight: number;
+  height: number;
+  goal: string;
 }

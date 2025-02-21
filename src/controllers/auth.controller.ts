@@ -85,7 +85,7 @@ export default {
         username,
         email,
         gender,
-        birthDate: new Date(birthDate),
+        birthDate,
         password,
       });
       response.success(res, result, "success register user");
@@ -112,6 +112,7 @@ export default {
         $or: [{ email: identifier }, { username: identifier }],
         isActive: true,
       });
+
       if (!userByIdentifier) {
         return response.unauthorized(res, "user not found");
       }
