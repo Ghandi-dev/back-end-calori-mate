@@ -41,17 +41,33 @@ export default {
   },
   async findAll(req: IReqUser, res: Response) {
     try {
-      const { page = 1, limit = 10 } = req.query as unknown as IPaginationQuery;
-      const result = await DailyLogModel.find()
+      const { page = 1, limit = 10, startDate, endDate } = req.query as unknown as IPaginationQuery;
+
+      // Membuat filter query berdasarkan tanggal jika diberikan
+      const filter: any = {};
+      if (startDate && endDate) {
+        filter.createdAt = {
+          $gte: new Date(startDate), // >= startDate
+          $lte: new Date(endDate), // <= endDate
+        };
+      } else if (startDate) {
+        filter.createdAt = { $gte: new Date(startDate) };
+      } else if (endDate) {
+        filter.createdAt = { $lte: new Date(endDate) };
+      }
+
+      // Query dengan filter tanggal
+      const result = await DailyLogModel.find(filter)
         .limit(limit)
         .skip((page - 1) * limit)
         .sort({ createdAt: -1 })
         .exec();
-      if (!result) {
+
+      if (!result || result.length === 0) {
         return response.notFound(res, "daily log not found");
       }
 
-      const count = await DailyLogModel.countDocuments();
+      const count = await DailyLogModel.countDocuments(filter);
       response.pagination(
         res,
         result,
@@ -68,19 +84,35 @@ export default {
   },
   async findAllByMember(req: IReqUser, res: Response) {
     try {
-      const { page = 1, limit = 10, date } = req.query as unknown as IPaginationQuery;
+      const { page = 1, limit = 10, date, startDate, endDate } = req.query as unknown as IPaginationQuery;
+
+      // Filter berdasarkan user ID
       const query: FilterQuery<TypeDailyLog> = { userId: req.user?.id };
-      if (date) query.date = date;
+
+      // Filter berdasarkan tanggal tertentu
+      if (date) {
+        query.createdAt = new Date(date); // Menggunakan `createdAt` sesuai field di MongoDB
+      }
+
+      // Filter berdasarkan rentang tanggal
+      if (startDate && endDate) {
+        query.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
+      }
+
+      // Query data sesuai filter
       const result = await DailyLogModel.find(query)
         .limit(limit)
         .skip((page - 1) * limit)
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1 }) // Urutkan dari terbaru
         .exec();
-      if (!result) {
+
+      if (!result || result.length === 0) {
         return response.notFound(res, "daily log not found");
       }
 
-      const count = await DailyLogModel.countDocuments({ userId: req.user?.id });
+      // Menghitung total data berdasarkan query yang digunakan
+      const count = await DailyLogModel.countDocuments(query);
+
       response.pagination(
         res,
         result,

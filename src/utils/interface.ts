@@ -15,6 +15,8 @@ export interface IPaginationQuery {
   limit: number;
   search?: string;
   date?: Date;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 export interface IHealthReport {
