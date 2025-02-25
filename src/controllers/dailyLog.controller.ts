@@ -91,7 +91,13 @@ export default {
 
       // Filter berdasarkan tanggal tertentu
       if (date) {
-        query.createdAt = new Date(date); // Menggunakan `createdAt` sesuai field di MongoDB
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        query.date = { $gte: startOfDay, $lte: endOfDay };
       }
 
       // Filter berdasarkan rentang tanggal
