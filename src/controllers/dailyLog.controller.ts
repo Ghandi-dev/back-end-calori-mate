@@ -30,7 +30,7 @@ export default {
       );
 
       //   Create Daily Log
-      const payload = { ...req.body, userId: req.user?.id, bmr, tdee, food: calorieData.food, activity: calorieData.activity };
+      const payload = { ...req.body, date, userId: req.user?.id, bmr, tdee, food: calorieData.food, activity: calorieData.activity };
       await dailyLogDTO.validate(payload);
       const result = await DailyLogModel.create(payload);
       response.success(res, result, "success create daily log");
@@ -171,58 +171,111 @@ export default {
       response.error(res, error, "failed get report");
     }
   },
-  async update(req: IReqUser, res: Response) {
+  async updatePersonalData(req: IReqUser, res: Response) {
     try {
       const dailyLogId = req.params.id;
       if (!isValidObjectId(dailyLogId)) {
-        return response.notFound(res, "daily log not found");
+        return response.notFound(res, "Daily log not found");
       }
 
-      // Cek apakah Daily Log untuk hari ini sudah ada
-      let dailyLog = await DailyLogModel.findOne({ _id: dailyLogId, date: new Date().toISOString().split("T")[0] });
+      // Cek apakah Daily Log untuk hari ini ada
+      const today = new Date().toISOString().split("T")[0];
+      const dailyLog = await DailyLogModel.findOne({ _id: dailyLogId, date: today });
       if (!dailyLog) {
         return response.error(res, null, "Daily log not found");
       }
 
+      // Hitung ulang BMR & TDEE berdasarkan data baru (jika ada)
       const birthYear = new Date(req.user?.birthDate!!).getFullYear();
-      const age = new Date().getFullYear() - birthYear!!;
+      const age = new Date().getFullYear() - birthYear;
       const weight = req.body.weight ?? dailyLog.weight;
       const height = req.body.height ?? dailyLog.height;
       const activityLevel = req.body.activityLevel ?? dailyLog.activityLevel;
       const bmr = bmrCalculate(weight, height, age, req.user?.gender!!);
       const tdee = tdeeCalculate(bmr, activityLevel);
 
-      // **Ambil Data Lama** untuk mencegah perubahan total sebelumnya
+      // Perbarui hanya data pribadi
+      const result = await DailyLogModel.findByIdAndUpdate(dailyLogId, { weight, height, activityLevel, bmr, tdee }, { new: true });
+
+      if (!result) {
+        return response.notFound(res, "Daily log not found");
+      }
+
+      response.success(res, result, "Personal data updated successfully");
+    } catch (error) {
+      console.error("Error updating personal data:", error);
+      response.error(res, error, "Failed to update personal data");
+    }
+  },
+  async updateFoodActivity(req: IReqUser, res: Response) {
+    try {
+      const dailyLogId = req.params.id;
+      if (!isValidObjectId(dailyLogId)) {
+        return response.notFound(res, "Daily log not found");
+      }
+
+      // Cek apakah Daily Log untuk hari ini ada
+      const today = new Date().toISOString().split("T")[0];
+      const dailyLog = await DailyLogModel.findOne({ _id: dailyLogId, date: today });
+      if (!dailyLog) {
+        return response.error(res, null, "Daily log not found");
+      }
+
+      // Ambil data lama
       const oldFood = dailyLog.food || [];
       const oldActivity = dailyLog.activity || [];
 
-      // **Cek Data Baru** (makanan & aktivitas yang baru ditambahkan)
-      const { food, activity } = req.body as TypeDailyLog;
-      const newFood = food?.filter((item) => !oldFood.some((old) => old.name === item.name)) || [];
-      const newActivity = activity?.filter((item) => !oldActivity.some((old) => old.name === item.name)) || [];
+      // Ambil data baru dari request
+      const { food = [], activity = [] } = req.body as TypeDailyLog;
 
-      // **Hitung Hanya Data Baru**
-      const newCalories = await calorieCalculate(
-        newFood.map((f) => f.name),
-        newActivity.map((a) => a.name),
-        weight,
-        height
-      );
+      // Fungsi untuk memperbarui data baru dengan nilai kalori dari data lama
+      const updateWithOldCalories = (newItems: any[], oldItems: any[]) => {
+        return newItems.map((newItem) => {
+          const oldItem = oldItems.find((item) => item.name === newItem.name);
+          if (oldItem) {
+            // Jika ada item lama dengan nama yang sama, gunakan kalori dari data lama
+            return { ...newItem, calories: oldItem.calories };
+          }
+          // Jika tidak ada item lama, kembalikan item baru tanpa kalori
+          return newItem;
+        });
+      };
 
-      // **Gabungkan Data Lama + Baru**
-      const updatedFood = [...oldFood, ...newCalories.food];
-      const updatedActivity = [...oldActivity, ...newCalories.activity];
+      // Perbarui data baru dengan kalori dari data lama
+      const updatedFood = updateWithOldCalories(food, oldFood);
+      const updatedActivity = updateWithOldCalories(activity, oldActivity);
 
-      const payload = { ...req.body, userId: req.user?.id, bmr, tdee, food: updatedFood, activity: updatedActivity, report: null };
+      // Hitung kalori hanya untuk data baru yang belum memiliki kalori
+      const newFoodWithoutCalories = updatedFood.filter((item) => !item.calories);
+      const newActivityWithoutCalories = updatedActivity.filter((item) => !item.calories);
 
-      const result = await DailyLogModel.findOneAndUpdate({ _id: dailyLogId }, payload, { new: true });
-      if (!result) {
-        return response.notFound(res, "daily log not found");
+      let newCalories = { food: [], activity: [] };
+      if (newFoodWithoutCalories.length || newActivityWithoutCalories.length) {
+        newCalories = await calorieCalculate(
+          newFoodWithoutCalories.map((f) => f.name),
+          newActivityWithoutCalories.map((a) => a.name),
+          dailyLog.weight, // Gunakan data berat dari dailyLog yang sudah ada
+          dailyLog.height
+        );
       }
-      response.success(res, result, "success update daily log");
+
+      // Gabungkan data lama dengan data baru yang telah diperbarui
+      const finalFood = [...oldFood, ...newCalories.food, ...updatedFood];
+      const finalActivity = [...oldActivity, ...newCalories.activity, ...updatedActivity];
+      console.log("finalFood", finalFood);
+      console.log("finalActivity", finalActivity);
+
+      // Update hanya bagian food & activity
+      const result = await DailyLogModel.findByIdAndUpdate(dailyLogId, { food: finalFood, activity: finalActivity }, { new: true });
+
+      if (!result) {
+        return response.notFound(res, "Daily log not found");
+      }
+
+      response.success(res, result, "Food & Activity updated successfully");
     } catch (error) {
-      console.error("Error creating daily log:", error);
-      response.error(res, error, "failed update daily log");
+      console.error("Error updating food & activity:", error);
+      response.error(res, error, "Failed to update food & activity");
     }
   },
   async delete(req: IReqUser, res: Response) {

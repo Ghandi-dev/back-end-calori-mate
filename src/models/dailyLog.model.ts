@@ -39,7 +39,7 @@ export interface DailyLog extends Omit<TypeDailyLog, "userId"> {
 const DailyLogSchema = new Schema<DailyLog>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    date: { type: Schema.Types.Date, required: true, default: new Date().toISOString().split("T")[0] },
+    date: { type: Schema.Types.Date, required: true },
     weight: { type: Schema.Types.Number, required: true },
     height: { type: Schema.Types.Number, required: true },
     goal: { type: Schema.Types.String, enum: [GOALS.LOSE, GOALS.MAINTAIN, GOALS.GAIN], required: true },

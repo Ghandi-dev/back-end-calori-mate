@@ -21,7 +21,8 @@ router.get("/daily-log", [authMiddleware, aclMiddleware([ROLES.ADMIN])], dailyLo
 router.get("/daily-log/:id", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.findOne);
 router.get("/daily-log-member", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.findAllByMember);
 router.get("/daily-log-report", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.getReport);
-router.put("/daily-log/:id", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.update);
+router.put("/daily-log/:id/personal", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.updatePersonalData);
+router.put("/daily-log/:id/food-activity", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.updateFoodActivity);
 router.delete("/daily-log/:id", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.delete);
 router.delete("/daily-log/:id/food/:foodId", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.deleteFoodById);
 router.delete("/daily-log/:id/activity/:activityId", [authMiddleware, aclMiddleware([ROLES.MEMBER])], dailyLogController.deleteActivityById);
