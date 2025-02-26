@@ -259,11 +259,18 @@ export default {
         );
       }
 
-      // Gabungkan data lama dengan data baru yang telah diperbarui
-      const finalFood = [...oldFood, ...newCalories.food, ...updatedFood];
-      const finalActivity = [...oldActivity, ...newCalories.activity, ...updatedActivity];
-      console.log("finalFood", finalFood);
-      console.log("finalActivity", finalActivity);
+      /// Gabungkan data lama dengan data baru yang telah diperbarui
+      const finalFood = [
+        ...oldFood, // Data lama
+        ...newCalories.food, // Data baru yang telah dihitung kalorinya
+        ...updatedFood.filter((item) => item.calories), // Data baru yang sudah memiliki kalori
+      ];
+
+      const finalActivity = [
+        ...oldActivity, // Data lama
+        ...newCalories.activity, // Data baru yang telah dihitung kalorinya
+        ...updatedActivity.filter((item) => item.calories), // Data baru yang sudah memiliki kalori
+      ];
 
       // Update hanya bagian food & activity
       const result = await DailyLogModel.findByIdAndUpdate(dailyLogId, { food: finalFood, activity: finalActivity }, { new: true });
