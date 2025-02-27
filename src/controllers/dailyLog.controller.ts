@@ -5,7 +5,7 @@ import response from "../utils/response";
 import DailyLogModel, { dailyLogDTO, TypeDailyLog } from "../models/dailyLog.model";
 import { bmrCalculate } from "../utils/bmr";
 import { tdeeCalculate } from "../utils/tdee";
-import { calorieCalculate, healthReport } from "../service/gemini";
+import { calorieCalculate, generateRecipeSuggestion, healthReport } from "../service/gemini/gemini";
 
 export default {
   async create(req: IReqUser, res: Response) {
@@ -164,9 +164,22 @@ export default {
         height: dailyLog.height,
         goal: dailyLog.goal,
       };
-      const report = await healthReport(payload);
+      if (payload.totalCaloriesIn === 0 && payload.totalCaloriesOut === 0) return response.notFound(res, "Your food and activity data is empty");
+
+      const report = await healthReport(payload, req.query.language as string);
       await DailyLogModel.findByIdAndUpdate(dailyLog._id, { report: report });
       response.success(res, report, "success get report");
+    } catch (error) {
+      response.error(res, error, "failed get report");
+    }
+  },
+  async getRecipe(req: IReqUser, res: Response) {
+    try {
+      const date = new Date().toISOString().split("T")[0];
+      const dailyLog = (await DailyLogModel.findOne({ userId: req.user?.id, date })) as TypeDailyLog;
+      if (!dailyLog) return response.notFound(res, "daily log not found ");
+      const recipe = await generateRecipeSuggestion(dailyLog.tdee as number, dailyLog.goal, req.query.language as string);
+      response.success(res, recipe, "success get report");
     } catch (error) {
       response.error(res, error, "failed get report");
     }
@@ -263,13 +276,13 @@ export default {
       const finalFood = [
         ...oldFood, // Data lama
         ...newCalories.food, // Data baru yang telah dihitung kalorinya
-        ...updatedFood.filter((item) => item.calories), // Data baru yang sudah memiliki kalori
+        ...updatedFood.filter((item) => item.calories > 0), // Data baru yang sudah memiliki kalori
       ];
 
       const finalActivity = [
         ...oldActivity, // Data lama
         ...newCalories.activity, // Data baru yang telah dihitung kalorinya
-        ...updatedActivity.filter((item) => item.calories), // Data baru yang sudah memiliki kalori
+        ...updatedActivity.filter((item) => item.calories > 0), // Data baru yang sudah memiliki kalori
       ];
 
       // Update hanya bagian food & activity
