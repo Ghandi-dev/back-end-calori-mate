@@ -178,6 +178,10 @@ export default {
         }
       );
 
+      if (!user) {
+        return response.notFound(res, "user not found");
+      }
+
       response.success(res, user, "success activation user");
     } catch (error) {
       response.error(res, error, "failed activation user");

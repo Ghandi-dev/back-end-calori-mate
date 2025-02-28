@@ -155,6 +155,8 @@ export default {
       if (!dailyLog) return response.notFound(res, "daily log not found ");
 
       if (dailyLog.report) return response.success(res, dailyLog.report, "success get report");
+      if (dailyLog.totalCaloriesIn === 0 && dailyLog.totalCaloriesOut === 0) return response.notFound(res, "Your food and activity data is empty");
+
       const payload: IHealthReport = {
         bmr: dailyLog.bmr!!,
         tdee: dailyLog.tdee!!,
@@ -164,7 +166,6 @@ export default {
         height: dailyLog.height,
         goal: dailyLog.goal,
       };
-      if (payload.totalCaloriesIn === 0 && payload.totalCaloriesOut === 0) return response.notFound(res, "Your food and activity data is empty");
 
       const report = await healthReport(payload, req.query.language as string);
       await DailyLogModel.findByIdAndUpdate(dailyLog._id, { report: report });
