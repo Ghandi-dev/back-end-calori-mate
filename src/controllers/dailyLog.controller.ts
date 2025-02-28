@@ -286,7 +286,15 @@ export default {
       ];
 
       // Update hanya bagian food & activity
-      const result = await DailyLogModel.findByIdAndUpdate(dailyLogId, { food: finalFood, activity: finalActivity }, { new: true });
+      const result = await DailyLogModel.findByIdAndUpdate(
+        dailyLogId,
+        {
+          food: finalFood,
+          activity: finalActivity,
+          $unset: { report: "" }, // Menghapus field 'report' dari dokumen
+        },
+        { new: true }
+      );
 
       if (!result) {
         return response.notFound(res, "Daily log not found");
