@@ -106,7 +106,7 @@ UserSchema.post("save", async function (doc, next) {
     await sendMail({
       from: EMAIL_SMTP_USER,
       to: user.email,
-      subject: "Selamat Datang di Acara",
+      subject: "Welcome to CalorieMate",
       html: contentMail,
     });
   } catch (error) {

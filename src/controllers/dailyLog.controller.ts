@@ -109,7 +109,7 @@ export default {
       const result = await DailyLogModel.find(query)
         .limit(limit)
         .skip((page - 1) * limit)
-        .sort({ createdAt: -1 }) // Urutkan dari terbaru
+        .sort({ createdAt: 1 }) // Urutkan dari terbaru
         .exec();
 
       if (!result || result.length === 0) {
