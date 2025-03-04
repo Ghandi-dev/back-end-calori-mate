@@ -154,7 +154,7 @@ export default {
       const dailyLog = await DailyLogModel.findOne({ userId: req.user?.id, date });
       if (!dailyLog) return response.notFound(res, "daily log not found ");
 
-      if (dailyLog.report) return response.success(res, dailyLog.report, "success get report");
+      if (dailyLog.report.en && dailyLog.report.id) return response.success(res, dailyLog.report, "success get report");
       if (dailyLog.totalCaloriesIn === 0 && dailyLog.totalCaloriesOut === 0) return response.notFound(res, "Your food and activity data is empty");
 
       const payload: IHealthReport = {
@@ -166,9 +166,11 @@ export default {
         height: dailyLog.height,
         goal: dailyLog.goal,
       };
+      const report = await healthReport(payload);
 
-      const report = await healthReport(payload, req.query.language as string);
-      await DailyLogModel.findByIdAndUpdate(dailyLog._id, { report: report });
+      await DailyLogModel.findByIdAndUpdate(dailyLog._id, { $set: { report } }, { new: true });
+      // response.success(res, result, "success get report");
+
       response.success(res, report, "success get report");
     } catch (error) {
       response.error(res, error, "failed get report");

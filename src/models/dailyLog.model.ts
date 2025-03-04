@@ -27,7 +27,10 @@ export const dailyLogDTO = yup.object({
   totalCaloriesOut: yup.number(),
   bmr: yup.number(),
   tdee: yup.number(),
-  report: yup.string(),
+  report: yup.object({
+    id: yup.string().required(),
+    en: yup.string().required(),
+  }),
 });
 
 export type TypeDailyLog = yup.InferType<typeof dailyLogDTO>;
@@ -70,7 +73,10 @@ const DailyLogSchema = new Schema<DailyLog>(
     totalCaloriesOut: { type: Schema.Types.Number },
     bmr: { type: Number, default: 0 },
     tdee: { type: Number, default: 0 },
-    report: { type: Schema.Types.String },
+    report: {
+      type: Schema.Types.Mixed,
+      default: {}, // Pastikan defaultnya adalah object kosong agar tidak null
+    },
   },
 
   { timestamps: true }

@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { GEMINI_API_KEY } from "../../utils/env";
 import { IHealthReport } from "../../utils/interface";
-import { schemaCalorie, schemaRecipe } from "./schema";
+import { schemaCalorie, schemaRecipe, schemaReport } from "./schema";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
@@ -54,21 +54,20 @@ const calorieCalculate = async (food: string[], activity: string[], weight: numb
   }
 };
 
-const healthReport = async (data: IHealthReport, lang: string) => {
+const healthReport = async (data: IHealthReport, lang?: string) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
     generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: schemaReport,
       temperature: 0.3,
       topP: 0.5,
       topK: 10,
-      maxOutputTokens: 800,
+      maxOutputTokens: 1000,
     },
   });
 
-  let prompt = "";
-
-  if (lang === "id") {
-    prompt = `
+  let prompt = `
       Saya ingin mendapatkan analisis kesehatan berdasarkan data berikut:
 
       - BMR (Basal Metabolic Rate): ${data.bmr} cal  
@@ -90,36 +89,11 @@ const healthReport = async (data: IHealthReport, lang: string) => {
       - Fokuskan saran pada dan hanya pada pola makan, aktivitas fisik.  
       - Berikan laporan yang langsung ke inti masalah, tanpa pengantar atau kata tambahan yang tidak diperlukan.
       - Format jawaban hanya dan hanya dalam bentuk paragraf tanpa ada special character.
-    `;
-  } else {
-    prompt = `
-      I want to get a health analysis based on the following data:
-
-      - BMR (Basal Metabolic Rate): ${data.bmr} cal  
-      - TDEE (Total Daily Energy Expenditure): ${data.tdee} cal  
-      - Total Calories In: ${data.totalCaloriesIn} cal  
-      - Total Calories Out: ${data.totalCaloriesOut} cal  
-      - Weight: ${data.weight} kg  
-      - Height: ${data.height} cm  
-      - Goal: ${data.goal} weight  
-
-      Please provide a report that includes:  
-      1. Whether the user is in a surplus, deficit, or balanced state based on TDEE, and explain whether it is still within a safe range or not.  
-      2. The user's BMI condition.  
-      3. Practical daily tips to achieve their goal.  
-
-      Important Notes:  
-      - Avoid recommendations suggesting consulting a nutritionist or doctor.  
-      - Do not recommend using fitness tracking devices.  
-      - Focus advice solely on diet and physical activity.  
-      - Provide a concise and to-the-point report without unnecessary introductions or extra words.
-      - The response should be formatted as a paragraph only, without any special characters.
-    `;
-  }
+     `;
 
   try {
     const result = await model.generateContent(prompt);
-    return result.response.text();
+    return JSON.parse(result.response.text());
   } catch (error) {
     console.error("Error parsing response from AI:", error);
     return null;
@@ -132,10 +106,10 @@ const generateRecipeSuggestion = async (tdee: number, goal: string, lang: string
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: schemaRecipe,
-      temperature: 0.5,
-      topP: 0.7,
-      topK: 40,
-      maxOutputTokens: 1000,
+      temperature: 0.9, // Lebih tinggi untuk meningkatkan kreativitas
+      topP: 0.9, // Lebih tinggi untuk diversifikasi
+      topK: 50, // Lebih tinggi untuk memperluas pilihan kata
+      // maxOutputTokens: 1500, // Opsional: Tambah jika jawaban sering terpotong
     },
   });
 
@@ -161,6 +135,8 @@ Rekomendasi resep harus disesuaikan dengan tujuan saya. Gunakan bahasa ${lang} d
   try {
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
+    console.log(responseText);
+
     return JSON.parse(responseText);
   } catch (error) {
     console.error("Error parsing response from AI:", error);

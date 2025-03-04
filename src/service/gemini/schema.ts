@@ -1,7 +1,7 @@
 import { SchemaType } from "@google/generative-ai";
 
 const schemaRecipe = {
-  description: "Informasi resep masakan beserta nilai gizi per porsi",
+  description: "Informasi resep masakan beserta nilai gizi per porsi dalam dua bahasa (Indonesia & Inggris)",
   type: SchemaType.OBJECT,
   properties: {
     recipe: {
@@ -10,8 +10,22 @@ const schemaRecipe = {
         metadata: {
           type: SchemaType.OBJECT,
           properties: {
-            title: { type: SchemaType.STRING },
-            description: { type: SchemaType.STRING },
+            title: {
+              type: SchemaType.OBJECT,
+              properties: {
+                en: { type: SchemaType.STRING },
+                id: { type: SchemaType.STRING },
+              },
+              required: ["en", "id"],
+            },
+            description: {
+              type: SchemaType.OBJECT,
+              properties: {
+                en: { type: SchemaType.STRING },
+                id: { type: SchemaType.STRING },
+              },
+              required: ["en", "id"],
+            },
           },
           required: ["title", "description"],
         },
@@ -20,9 +34,23 @@ const schemaRecipe = {
           items: {
             type: SchemaType.OBJECT,
             properties: {
-              name: { type: SchemaType.STRING },
+              name: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  en: { type: SchemaType.STRING },
+                  id: { type: SchemaType.STRING },
+                },
+                required: ["en", "id"],
+              },
               quantity: { type: SchemaType.NUMBER },
-              unit: { type: SchemaType.STRING },
+              unit: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  en: { type: SchemaType.STRING },
+                  id: { type: SchemaType.STRING },
+                },
+                required: ["en", "id"],
+              },
             },
             required: ["name", "quantity", "unit"],
           },
@@ -33,7 +61,14 @@ const schemaRecipe = {
             type: SchemaType.OBJECT,
             properties: {
               step: { type: SchemaType.NUMBER },
-              description: { type: SchemaType.STRING },
+              description: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  en: { type: SchemaType.STRING },
+                  id: { type: SchemaType.STRING },
+                },
+                required: ["en", "id"],
+              },
             },
             required: ["step", "description"],
           },
@@ -91,4 +126,14 @@ const schemaCalorie = {
   required: ["food", "activity"],
 };
 
-export { schemaCalorie, schemaRecipe };
+const schemaReport = {
+  description: "Laporan kesehatan berdasarkan data",
+  type: SchemaType.OBJECT,
+  properties: {
+    id: { type: SchemaType.STRING },
+    en: { type: SchemaType.STRING },
+  },
+  required: ["id", "en"],
+};
+
+export { schemaCalorie, schemaRecipe, schemaReport };
