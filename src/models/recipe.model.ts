@@ -9,7 +9,7 @@ export const recipeDTO = yup.object({
   portion: yup.number().required(),
   ingredients: yup.array().of(
     yup.object({
-      quantity: yup.number().required(),
+      quantity: yup.string().required(),
       ingredient: yup.string().required(),
     })
   ),
@@ -38,7 +38,7 @@ export const recipeSchema = new Schema<IRecipe>({
   portion: { type: Number, required: true },
   ingredients: [
     {
-      quantity: { type: Number, required: true },
+      quantity: { type: String, required: true },
       ingredient: { type: String, required: true },
     },
   ],
