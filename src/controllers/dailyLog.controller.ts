@@ -176,17 +176,6 @@ export default {
       response.error(res, error, "failed get report");
     }
   },
-  async getRecipe(req: IReqUser, res: Response) {
-    try {
-      const date = new Date().toISOString().split("T")[0];
-      const dailyLog = (await DailyLogModel.findOne({ userId: req.user?.id, date })) as TypeDailyLog;
-      if (!dailyLog) return response.notFound(res, "daily log not found ");
-      const recipe = await generateRecipeSuggestion(dailyLog.tdee as number, dailyLog.goal, req.query.language as string);
-      response.success(res, recipe, "success get report");
-    } catch (error) {
-      response.error(res, error, "failed get report");
-    }
-  },
   async updatePersonalData(req: IReqUser, res: Response) {
     try {
       const dailyLogId = req.params.id;
