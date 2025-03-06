@@ -28,8 +28,8 @@ export const dailyLogDTO = yup.object({
   bmr: yup.number(),
   tdee: yup.number(),
   report: yup.object({
-    id: yup.string().required(),
-    en: yup.string().required(),
+    id: yup.string(),
+    en: yup.string(),
   }),
 });
 

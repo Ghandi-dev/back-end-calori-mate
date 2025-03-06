@@ -22,12 +22,15 @@ export default {
       const tdee = tdeeCalculate(bmr, activityLevel);
 
       // menghitung kalori
-      const calorieData = await calorieCalculate(
-        food.map((item) => item.name), // Kirim hanya nama makanan
-        activity.map((item) => item.name), // Kirim hanya nama aktivitas
-        weight,
-        height
-      );
+      let calorieData = { food, activity } as TypeDailyLog;
+      if ((calorieData.food && !calorieData.food[0]?.calories) || (calorieData.activity && !calorieData.activity[0]?.calories)) {
+        calorieData = await calorieCalculate(
+          food.map((item) => item.name), // Kirim hanya nama makanan
+          activity.map((item) => item.name), // Kirim hanya nama aktivitas
+          weight,
+          height
+        );
+      }
 
       //   Create Daily Log
       const payload = { ...req.body, date, userId: req.user?.id, bmr, tdee, food: calorieData.food, activity: calorieData.activity };
