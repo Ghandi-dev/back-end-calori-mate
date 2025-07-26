@@ -5,6 +5,7 @@ import { schemaCalorie, schemaRecipe, schemaReport } from "./schema";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+// Fungsi Untuk menghitung kalori berdasarkan makanan dan aktivitas
 const calorieCalculate = async (food: string[], activity: string[], weight: number, height: number) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
@@ -54,6 +55,7 @@ const calorieCalculate = async (food: string[], activity: string[], weight: numb
   }
 };
 
+//  Fungsi untuk mendapatkan laporan kesehatan berdasarkan data yang diberikan
 const healthReport = async (data: IHealthReport, lang?: string) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
@@ -100,6 +102,7 @@ const healthReport = async (data: IHealthReport, lang?: string) => {
   }
 };
 
+//  Fungsi untuk menghasilkan saran resep berdasarkan kebutuhan kalori dan makronutrien
 const generateRecipeSuggestion = async (tdee: number, goal: string, lang: string) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
