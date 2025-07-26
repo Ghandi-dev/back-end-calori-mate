@@ -83,7 +83,8 @@ const healthReport = async (data: IHealthReport, lang?: string) => {
       Mohon berikan laporan yang mencakup:  
       1. Apakah pengguna berada dalam kondisi surplus, defisit, atau seimbang berdasarkan TDEE, dan jelaskan apakah masih dalam batas aman atau tidak.
       2. Kondisi BMI pengguna  
-      3. Saran praktis yang dapat dilakukan sehari-hari untuk mencapai goal tersebut.  
+      3. Saran praktis yang dapat dilakukan sehari-hari untuk mencapai goal tersebut.
+      4. Saran makanan sehat yang sesuai dengan goal pengguna, termasuk rekomendasi jumlah kalori dan makronutrien yang harus dikonsumsi setiap hari.  
 
       Catatan Penting:  
       - Hindari rekomendasi yang menyarankan konsultasi ke ahli gizi atau dokter.  
